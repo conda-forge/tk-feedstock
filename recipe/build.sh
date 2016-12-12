@@ -34,7 +34,7 @@ make
 make install
 
 cd $PREFIX
-rm -rf man share
+rm -rf man share include/X11
 
 # Link binaries to non-versioned names to make them easier to find and use.
 ln -s "${PREFIX}/bin/tclsh${VER_ARR[0]}.${VER_ARR[1]}" "${PREFIX}/bin/tclsh"
