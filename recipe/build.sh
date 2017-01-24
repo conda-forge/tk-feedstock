@@ -35,3 +35,16 @@ ln -s "${PREFIX}"/bin/wish${VER_ARR[0]}.${VER_ARR[1]} "${PREFIX}"/bin/wish
 
 # copy headers
 cp "${SRC_DIR}"/tk${PKG_VERSION}/{unix,generic}/*.h "${PREFIX}"/include/
+
+if [[ $(uname) == Darwin ]] ; then
+    # On macOS, we configure Tk to use the Aqua backend. Even when Tk uses a
+    # non-X11 backend, its header files still reference declarations from the
+    # X11 windowing system, so in those cases Tk installs its own dummy X11
+    # headers. However, on conda-forge we also provide the X.org X11 library
+    # stack, and the two sets of headers are not compatible. Therefore on
+    # macOS we delete those headers and list xorg-libx11 as a runtime
+    # dependency. Really it's a development-only dependency, but we don't
+    # (yet?) have a split between "main" and "devel" packages as seen in most
+    # Linux distros.
+    rm -rf "${PREFIX}"/include/X11/
+fi

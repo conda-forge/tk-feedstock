@@ -33,6 +33,8 @@ requirements:
     - make                               # [linux]
   host:
     - zlib  # [unix]
+  run:
+    - xorg-libx11  # [osx] -- see comment at the bottom of build.sh for an explanation
 
 test:
 
