@@ -23,7 +23,7 @@ build:
 
 requirements:
   build:
-    - curl           # [win]
+    - curl
     - 7za            # [win]
     - vc {{ VC_VERSION }}  # [win]
   run:
