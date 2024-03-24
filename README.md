@@ -36,45 +36,87 @@ Current build status
         <table>
           <thead><tr><th>Variant</th><th>Status</th></tr></thead>
           <tbody><tr>
-              <td>linux_64_tk_variantnoxft</td>
+              <td>linux_64_tk_variantnoxftzlib1.2</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_tk_variantnoxft" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_tk_variantnoxftzlib1.2" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_tk_variantxft</td>
+              <td>linux_64_tk_variantnoxftzlib1.3</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_tk_variantxft" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_tk_variantnoxftzlib1.3" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_aarch64_tk_variantnoxft</td>
+              <td>linux_64_tk_variantxftzlib1.2</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_tk_variantnoxft" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_tk_variantxftzlib1.2" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_aarch64_tk_variantxft</td>
+              <td>linux_64_tk_variantxftzlib1.3</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_tk_variantxft" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_tk_variantxftzlib1.3" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_ppc64le_tk_variantnoxft</td>
+              <td>linux_aarch64_tk_variantnoxftzlib1.2</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_tk_variantnoxft" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_tk_variantnoxftzlib1.2" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_ppc64le_tk_variantxft</td>
+              <td>linux_aarch64_tk_variantnoxftzlib1.3</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_tk_variantxft" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_tk_variantnoxftzlib1.3" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>linux_aarch64_tk_variantxftzlib1.2</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_tk_variantxftzlib1.2" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>linux_aarch64_tk_variantxftzlib1.3</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_tk_variantxftzlib1.3" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>linux_ppc64le_tk_variantnoxftzlib1.2</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_tk_variantnoxftzlib1.2" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>linux_ppc64le_tk_variantnoxftzlib1.3</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_tk_variantnoxftzlib1.3" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>linux_ppc64le_tk_variantxftzlib1.2</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_tk_variantxftzlib1.2" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>linux_ppc64le_tk_variantxftzlib1.3</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_tk_variantxftzlib1.3" alt="variant">
                 </a>
               </td>
             </tr><tr>
@@ -179,7 +221,7 @@ available continuous integration services. Thanks to the awesome service provide
 [CircleCI](https://circleci.com/), [AppVeyor](https://www.appveyor.com/),
 [Drone](https://cloud.drone.io/welcome), and [TravisCI](https://travis-ci.com/)
 it is possible to build and upload installable packages to the
-[conda-forge](https://anaconda.org/conda-forge) [Anaconda-Cloud](https://anaconda.org/)
+[conda-forge](https://anaconda.org/conda-forge) [anaconda.org](https://anaconda.org/)
 channel for Linux, Windows and OSX respectively.
 
 To manage the continuous integration and simplify feedstock maintenance
@@ -234,7 +276,4 @@ Feedstock Maintainers
 * [@ocefpaf](https://github.com/ocefpaf/)
 * [@pelson](https://github.com/pelson/)
 * [@xhochy](https://github.com/xhochy/)
-
-
-<!-- dummy commit to enable rerendering -->
 
