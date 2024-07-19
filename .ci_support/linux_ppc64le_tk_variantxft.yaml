@@ -15,4 +15,4 @@ target_platform:
 tk_variant:
 - xft
 zlib:
-- '1.2'
+- '1'

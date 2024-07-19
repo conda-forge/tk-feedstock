@@ -21,4 +21,4 @@ tk:
 tk_variant:
 - xft
 zlib:
-- '1.2'
+- '1'
