@@ -1,6 +1,6 @@
 {% set version = "8.6.13" %}
 {% set maj_min = ".".join(version.split(".")[:2]) %}
-{% set build = 1 %}
+{% set build = 2 %}
 
 package:
   name: tk
@@ -10,10 +10,11 @@ source:
   - url: https://downloads.sourceforge.net/tcl/tcl{{ version }}-src.tar.gz
     folder: tcl{{ version }}
     sha256: 43a1fae7412f61ff11de2cfd05d28cfc3a73762f354a417c62370a54e2caf066
+    patches:
+      - unvendor_zlib.diff
   - url: https://downloads.sourceforge.net/tcl/tk{{ version }}-src.tar.gz
     folder: tk{{ version }}
     sha256: 2e65fa069a23365440a3c56c556b8673b5e32a283800d8d9b257e3f584ce0675
-
 
 {% if tk_variant == 'noxft' and linux %}
 # prioritize noxft variant via build number
@@ -33,6 +34,7 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
+    - {{ stdlib('c') }}
     - {{ cdt('xorg-x11-proto-devel') }}  # [linux]
     - {{ cdt('libx11-devel') }}          # [linux]
     - {{ cdt('libxcb') }}                # [linux]
@@ -42,11 +44,17 @@ requirements:
     - {{ cdt('fontconfig-devel') }}      # [linux and tk_variant == 'xft']
     - {{ cdt('libXrender-devel') }}      # [linux and tk_variant == 'xft']
     - {{ cdt('libXft-devel') }}          # [linux and tk_variant == 'xft']
+    - {{ cdt('libpng-devel') }}          # [linux and tk_variant == 'xft']
+    - {{ cdt('libuuid-devel') }}         # [linux and tk_variant == 'xft']
+    - {{ cdt('expat-devel') }}           # [linux and tk_variant == 'xft']
     - pkg-config                         # [linux and tk_variant == 'xft']
   host:
-    - zlib  # [unix]
+    - zlib
 
 test:
+  requires:
+    # needs to run emulated tests
+    - bzip2  # [build_platform != target_platform]
 
   files:
     - hello.tcl

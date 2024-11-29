@@ -1,3 +1,8 @@
 libX11
 libXft
 libfontconfig
+libxcb
+libxau
+libXrender
+expat
+libuuid
