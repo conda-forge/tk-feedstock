@@ -40,6 +40,7 @@ requirements:
     - pkg-config                         # [linux and tk_variant == 'xft']
   host:
     - xorg-libx11      # [linux]
+    - xorg-xorgproto   # [linux]
     - fontconfig       # [linux and tk_variant == 'xft']
     - expat            # [linux and tk_variant == 'xft']
     - xorg-libxft      # [linux and tk_variant == 'xft']
