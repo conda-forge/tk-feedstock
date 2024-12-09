@@ -36,7 +36,7 @@ requirements:
     - {{ stdlib('c') }}
     - {{ compiler('c') }}
     - {{ stdlib('c') }}
-    - make                               # [linux]
+    - make
     - pkg-config                         # [linux and tk_variant == 'xft']
   host:
     - xorg-libx11      # [linux]
