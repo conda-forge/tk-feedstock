@@ -41,9 +41,12 @@ requirements:
   host:
     - xorg-libx11      # [linux]
     - fontconfig       # [linux and tk_variant == 'xft']
+    - expat            # [linux and tk_variant == 'xft']
     - xorg-libxft      # [linux and tk_variant == 'xft']
     - zlib
   run:
+    # will no longer be needed once this is merged
+    # https://github.com/conda-forge/xorg-libxft-feedstock/issues/15
     - xorg-libxft      # [linux and tk_variant == 'xft']
 
 test:
