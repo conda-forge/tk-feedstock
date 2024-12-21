@@ -1,6 +1,6 @@
-{% set version = "8.6.13" %}
+{% set version = "9.0.1" %}
 {% set maj_min = ".".join(version.split(".")[:2]) %}
-{% set build = 1 %}
+{% set build = 0 %}
 
 package:
   name: tk
@@ -9,10 +9,10 @@ package:
 source:
   - url: https://downloads.sourceforge.net/tcl/tcl{{ version }}-src.tar.gz
     folder: tcl{{ version }}
-    sha256: 43a1fae7412f61ff11de2cfd05d28cfc3a73762f354a417c62370a54e2caf066
+    sha256: a72b1607d7a399c75148c80fcdead88ed3371a29884181f200f2200cdee33bbc
   - url: https://downloads.sourceforge.net/tcl/tk{{ version }}-src.tar.gz
     folder: tk{{ version }}
-    sha256: 2e65fa069a23365440a3c56c556b8673b5e32a283800d8d9b257e3f584ce0675
+    sha256: d6f01a4d598bfc6398be9584e1bab828c907b0758db4bbb351a1429106aec527
 
 
 {% if tk_variant == 'noxft' and linux %}
@@ -22,7 +22,7 @@ source:
 
 build:
   number: {{ build }}
-  string: "{{ tk_variant }}_h{{ PKG_HASH }}_{{ build }}"     # [linux]
+  string: "{{ tk_variant }}_h{{ PKG_HASH }}_{{ build }}"  # [linux]
   track_features:
     - tk_xft   # [tk_variant == 'xft']
   detect_binary_files_with_prefix: true
@@ -33,6 +33,7 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
+    - {{ stdlib("c") }}
     - {{ cdt('xorg-x11-proto-devel') }}  # [linux]
     - {{ cdt('libx11-devel') }}          # [linux]
     - {{ cdt('libxcb') }}                # [linux]
