@@ -52,7 +52,7 @@ requirements:
     - {{ cdt('libXft-devel') }}          # [linux and tk_variant == 'xft']
     - pkg-config                         # [linux and tk_variant == 'xft']
   host:
-    - zlib  # [unix]
+    - zlib-ng  # [unix]
 
 test:
 
