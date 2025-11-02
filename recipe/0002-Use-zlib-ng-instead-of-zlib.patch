@@ -1,0 +1,228 @@
+From 3f1dbc96697613aed58077b085c9154b60cbc7bc Mon Sep 17 00:00:00 2001
+From: Mark Harfouche <mark.harfouche@gmail.com>
+Date: Sat, 1 Nov 2025 20:15:12 -0400
+Subject: [PATCH] Use zlib-ng instead of zlib
+
+---
+ compat/zlib/contrib/minizip/unzip.c |  8 ++---
+ compat/zlib/contrib/minizip/zip.c   | 12 +++----
+ unix/configure                      | 54 ++++++++++++++---------------
+ 3 files changed, 37 insertions(+), 37 deletions(-)
+
+diff --git a/compat/zlib/contrib/minizip/unzip.c b/compat/zlib/contrib/minizip/unzip.c
+index 3036b47..5c15541 100644
+--- a/compat/zlib/contrib/minizip/unzip.c
++++ b/compat/zlib/contrib/minizip/unzip.c
+@@ -134,7 +134,7 @@ typedef struct unz_file_info64_internal_s
+ typedef struct
+ {
+     char  *read_buffer;         /* internal buffer for compressed data */
+-    z_stream stream;            /* zLib stream structure for inflate */
++    zng_stream stream;            /* zLib stream structure for inflate */
+ 
+ #ifdef HAVE_BZIP2
+     bz_stream bstream;          /* bzLib stream structure for bziped */
+@@ -1582,7 +1582,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
+       pfile_in_zip_read_info->stream.next_in = 0;
+       pfile_in_zip_read_info->stream.avail_in = 0;
+ 
+-      err=inflateInit2(&pfile_in_zip_read_info->stream, -MAX_WBITS);
++      err=zng_inflateInit2(&pfile_in_zip_read_info->stream, -MAX_WBITS);
+       if (err == Z_OK)
+         pfile_in_zip_read_info->stream_initialised=Z_DEFLATED;
+       else
+@@ -1853,7 +1853,7 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
+                 (pfile_in_zip_read_info->rest_read_compressed == 0))
+                 flush = Z_FINISH;
+             */
+-            err=inflate(&pfile_in_zip_read_info->stream,flush);
++            err=zng_inflate(&pfile_in_zip_read_info->stream,flush);
+ 
+             if ((err>=0) && (pfile_in_zip_read_info->stream.msg!=NULL))
+               err = Z_DATA_ERROR;
+@@ -2032,7 +2032,7 @@ extern int ZEXPORT unzCloseCurrentFile (unzFile file)
+     TRYFREE(pfile_in_zip_read_info->read_buffer);
+     pfile_in_zip_read_info->read_buffer = NULL;
+     if (pfile_in_zip_read_info->stream_initialised == Z_DEFLATED)
+-        inflateEnd(&pfile_in_zip_read_info->stream);
++        zng_inflateEnd(&pfile_in_zip_read_info->stream);
+ #ifdef HAVE_BZIP2
+     else if (pfile_in_zip_read_info->stream_initialised == Z_BZIP2ED)
+         BZ2_bzDecompressEnd(&pfile_in_zip_read_info->bstream);
+diff --git a/compat/zlib/contrib/minizip/zip.c b/compat/zlib/contrib/minizip/zip.c
+index 66d693f..6a51146 100644
+--- a/compat/zlib/contrib/minizip/zip.c
++++ b/compat/zlib/contrib/minizip/zip.c
+@@ -26,7 +26,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <time.h>
+-#include "zlib.h"
++#include "zlib-ng.h"
+ #include "zip.h"
+ 
+ #ifdef STDC
+@@ -129,7 +129,7 @@ typedef struct linkedlist_data_s
+ 
+ typedef struct
+ {
+-    z_stream stream;            /* zLib stream structure for inflate */
++    zng_stream stream;            /* zLib stream structure for inflate */
+ #ifdef HAVE_BZIP2
+     bz_stream bstream;          /* bzLib stream structure for bziped */
+ #endif
+@@ -1218,7 +1218,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename,
+           if (windowBits>0)
+               windowBits = -windowBits;
+ 
+-          err = deflateInit2(&zi->ci.stream, level, Z_DEFLATED, windowBits, memLevel, strategy);
++          err = zng_deflateInit2(&zi->ci.stream, level, Z_DEFLATED, windowBits, memLevel, strategy);
+ 
+           if (err==Z_OK)
+               zi->ci.stream_initialised = Z_DEFLATED;
+@@ -1470,7 +1470,7 @@ extern int ZEXPORT zipWriteInFileInZip (zipFile file,const void* buf,unsigned in
+           if ((zi->ci.method == Z_DEFLATED) && (!zi->ci.raw))
+           {
+               uLong uTotalOutBefore = zi->ci.stream.total_out;
+-              err=deflate(&zi->ci.stream,  Z_NO_FLUSH);
++              err=zng_deflate(&zi->ci.stream,  Z_NO_FLUSH);
+ 
+               zi->ci.pos_in_buffered_data += (uInt)(zi->ci.stream.total_out - uTotalOutBefore) ;
+           }
+@@ -1535,7 +1535,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
+                                         zi->ci.stream.next_out = zi->ci.buffered_data;
+                                 }
+                                 uTotalOutBefore = zi->ci.stream.total_out;
+-                                err=deflate(&zi->ci.stream,  Z_FINISH);
++                                err=zng_deflate(&zi->ci.stream,  Z_FINISH);
+                                 zi->ci.pos_in_buffered_data += (uInt)(zi->ci.stream.total_out - uTotalOutBefore) ;
+                         }
+                 }
+@@ -1577,7 +1577,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
+ 
+     if ((zi->ci.method == Z_DEFLATED) && (!zi->ci.raw))
+     {
+-        int tmp_err = deflateEnd(&zi->ci.stream);
++        int tmp_err = zng_deflateEnd(&zi->ci.stream);
+         if (err == ZIP_OK)
+             err = tmp_err;
+         zi->ci.stream_initialised = 0;
+diff --git a/unix/configure b/unix/configure
+index 57d5081..760dce5 100755
+--- a/unix/configure
++++ b/unix/configure
+@@ -5782,8 +5782,8 @@ fi
+ 
+ zlib_ok=yes
+ if test "${ac_cv_header_zlib_h+set}" = set; then
+-  echo "$as_me:$LINENO: checking for zlib.h" >&5
+-echo $ECHO_N "checking for zlib.h... $ECHO_C" >&6
++  echo "$as_me:$LINENO: checking for zlib-ng.h" >&5
++echo $ECHO_N "checking for zlib-ng.h... $ECHO_C" >&6
+ if test "${ac_cv_header_zlib_h+set}" = set; then
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ fi
+@@ -5791,8 +5791,8 @@ echo "$as_me:$LINENO: result: $ac_cv_header_zlib_h" >&5
+ echo "${ECHO_T}$ac_cv_header_zlib_h" >&6
+ else
+   # Is the header compilable?
+-echo "$as_me:$LINENO: checking zlib.h usability" >&5
+-echo $ECHO_N "checking zlib.h usability... $ECHO_C" >&6
++echo "$as_me:$LINENO: checking zlib-ng.h usability" >&5
++echo $ECHO_N "checking zlib-ng.h usability... $ECHO_C" >&6
+ cat >conftest.$ac_ext <<_ACEOF
+ /* confdefs.h.  */
+ _ACEOF
+@@ -5800,7 +5800,7 @@ cat confdefs.h >>conftest.$ac_ext
+ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+ $ac_includes_default
+-#include <zlib.h>
++#include <zlib-ng.h>
+ _ACEOF
+ rm -f conftest.$ac_objext
+ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+@@ -5836,15 +5836,15 @@ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+ echo "${ECHO_T}$ac_header_compiler" >&6
+ 
+ # Is the header present?
+-echo "$as_me:$LINENO: checking zlib.h presence" >&5
+-echo $ECHO_N "checking zlib.h presence... $ECHO_C" >&6
++echo "$as_me:$LINENO: checking zlib-ng.h presence" >&5
++echo $ECHO_N "checking zlib-ng.h presence... $ECHO_C" >&6
+ cat >conftest.$ac_ext <<_ACEOF
+ /* confdefs.h.  */
+ _ACEOF
+ cat confdefs.h >>conftest.$ac_ext
+ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+-#include <zlib.h>
++#include <zlib-ng.h>
+ _ACEOF
+ if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
+   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+@@ -5878,25 +5878,25 @@ echo "${ECHO_T}$ac_header_preproc" >&6
+ # So?  What about this header?
+ case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+   yes:no: )
+-    { echo "$as_me:$LINENO: WARNING: zlib.h: accepted by the compiler, rejected by the preprocessor!" >&5
+-echo "$as_me: WARNING: zlib.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: zlib.h: proceeding with the compiler's result" >&5
+-echo "$as_me: WARNING: zlib.h: proceeding with the compiler's result" >&2;}
++    { echo "$as_me:$LINENO: WARNING: zlib-ng.h: accepted by the compiler, rejected by the preprocessor!" >&5
++echo "$as_me: WARNING: zlib-ng.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
++    { echo "$as_me:$LINENO: WARNING: zlib-ng.h: proceeding with the compiler's result" >&5
++echo "$as_me: WARNING: zlib-ng.h: proceeding with the compiler's result" >&2;}
+     ac_header_preproc=yes
+     ;;
+   no:yes:* )
+-    { echo "$as_me:$LINENO: WARNING: zlib.h: present but cannot be compiled" >&5
+-echo "$as_me: WARNING: zlib.h: present but cannot be compiled" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: zlib.h:     check for missing prerequisite headers?" >&5
+-echo "$as_me: WARNING: zlib.h:     check for missing prerequisite headers?" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: zlib.h: see the Autoconf documentation" >&5
+-echo "$as_me: WARNING: zlib.h: see the Autoconf documentation" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: zlib.h:     section \"Present But Cannot Be Compiled\"" >&5
+-echo "$as_me: WARNING: zlib.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: zlib.h: proceeding with the preprocessor's result" >&5
+-echo "$as_me: WARNING: zlib.h: proceeding with the preprocessor's result" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: zlib.h: in the future, the compiler will take precedence" >&5
+-echo "$as_me: WARNING: zlib.h: in the future, the compiler will take precedence" >&2;}
++    { echo "$as_me:$LINENO: WARNING: zlib-ng.h: present but cannot be compiled" >&5
++echo "$as_me: WARNING: zlib-ng.h: present but cannot be compiled" >&2;}
++    { echo "$as_me:$LINENO: WARNING: zlib-ng.h:     check for missing prerequisite headers?" >&5
++echo "$as_me: WARNING: zlib-ng.h:     check for missing prerequisite headers?" >&2;}
++    { echo "$as_me:$LINENO: WARNING: zlib-ng.h: see the Autoconf documentation" >&5
++echo "$as_me: WARNING: zlib-ng.h: see the Autoconf documentation" >&2;}
++    { echo "$as_me:$LINENO: WARNING: zlib-ng.h:     section \"Present But Cannot Be Compiled\"" >&5
++echo "$as_me: WARNING: zlib-ng.h:     section \"Present But Cannot Be Compiled\"" >&2;}
++    { echo "$as_me:$LINENO: WARNING: zlib-ng.h: proceeding with the preprocessor's result" >&5
++echo "$as_me: WARNING: zlib-ng.h: proceeding with the preprocessor's result" >&2;}
++    { echo "$as_me:$LINENO: WARNING: zlib-ng.h: in the future, the compiler will take precedence" >&5
++echo "$as_me: WARNING: zlib-ng.h: in the future, the compiler will take precedence" >&2;}
+     (
+       cat <<\_ASBOX
+ ## ------------------------------ ##
+@@ -5907,8 +5907,8 @@ _ASBOX
+       sed "s/^/$as_me: WARNING:     /" >&2
+     ;;
+ esac
+-echo "$as_me:$LINENO: checking for zlib.h" >&5
+-echo $ECHO_N "checking for zlib.h... $ECHO_C" >&6
++echo "$as_me:$LINENO: checking for zlib-ng.h" >&5
++echo $ECHO_N "checking for zlib-ng.h... $ECHO_C" >&6
+ if test "${ac_cv_header_zlib_h+set}" = set; then
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+@@ -5931,7 +5931,7 @@ _ACEOF
+ cat confdefs.h >>conftest.$ac_ext
+ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+-#include <zlib.h>
++#include <zlib-ng.h>
+ 
+ int
+ main ()
+-- 
+2.51.0
+
