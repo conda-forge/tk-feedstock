@@ -20,5 +20,5 @@ tk:
 - '8.6'
 tk_variant:
 - xft
-zlib:
-- '1'
+zlib_ng:
+- '2.2'

@@ -18,5 +18,5 @@ target_platform:
 - linux-ppc64le
 tk_variant:
 - noxft
-zlib:
-- '1'
+zlib_ng:
+- '2.2'
