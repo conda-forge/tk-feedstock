@@ -2,6 +2,9 @@
 
 set -ex
 
+# Remove vendored zlib to avoid conflicts with conda-forge zlib-ng
+rm -rf tcl8.6.13/compat/zlib
+
 if [[ ${target_platform} == linux-* ]]; then
     # Add CDTs to sysroot pkgconfig path
     # PKG_CONFIG_PATH="${CONDA_BUILD_SYSROOT}/usr/share/pkgconfig:${PKG_CONFIG_PATH}"
