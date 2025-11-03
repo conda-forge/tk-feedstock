@@ -1,0 +1,45 @@
+From f508aee9eb29abd3c616c29d31f2fa92a9565ad3 Mon Sep 17 00:00:00 2001
+From: Mark Harfouche <mark.harfouche@gmail.com>
+Date: Sun, 2 Nov 2025 21:42:33 -0500
+Subject: [PATCH 3/4] Update configure.in for zlib-ng
+
+---
+ unix/configure.in | 21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
+
+diff --git a/unix/configure.in b/unix/configure.in
+index 62ab90e..efeb6b9 100644
+--- a/unix/configure.in
++++ b/unix/configure.in
+@@ -155,23 +155,12 @@ if test "$TCLSH_PROG" = ""; then
+ fi
+ 
+ #------------------------------------------------------------------------
+-#	Add stuff for zlib
++#	Add stuff for zlib-ng
+ #------------------------------------------------------------------------
+-
+-zlib_ok=yes
+-AC_CHECK_HEADER([zlib.h],[
+-  AC_CHECK_TYPE([gz_header],[],[zlib_ok=no],[#include <zlib.h>])],[
+-  zlib_ok=no])
+-AS_IF([test $zlib_ok = yes], [
+-  AC_SEARCH_LIBS([deflateSetHeader],[z],[],[
+-    zlib_ok=no
+-  ])])
+-AS_IF([test $zlib_ok = no], [
+-  AC_SUBST(ZLIB_OBJS,[\${ZLIB_OBJS}])
+-  AC_SUBST(ZLIB_SRCS,[\${ZLIB_SRCS}])
+-  AC_SUBST(ZLIB_INCLUDE,[-I\${ZLIB_DIR}])
+-])
+-AC_DEFINE(HAVE_ZLIB, 1, [Is there an installed zlib?])
++PKG_CHECK_MODULES([ZLIB_NG], [zlib-ng], [],
++  [AC_MSG_ERROR([zlib-ng not found. Please install zlib-ng and its development files.])])
++AC_SUBST([ZLIB_NG_CFLAGS])
++AC_SUBST([ZLIB_NG_LIBS])
+ 
+ #--------------------------------------------------------------------
+ # The statements below define a collection of compile flags.  This
+-- 
+2.51.0
+

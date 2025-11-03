@@ -18,7 +18,7 @@ IFS="." read -a VER_ARR <<<"${PKG_VERSION}"
 
 
 pushd tcl${PKG_VERSION}/unix
-  # autoreconf -vfi
+  autoreconf -vfi
   ./configure  --prefix="${PREFIX}"
   make -j${CPU_COUNT} ${VERBOSE_AT}
   make install install-private-headers
