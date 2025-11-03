@@ -41,6 +41,9 @@ requirements:
   build:
     - {{ stdlib('c') }}
     - {{ compiler('c') }}
+    - autoconf                           # [unux]
+    - automake                           # [unux]
+    - libtool                            # [unux]
     - {{ cdt('xorg-x11-proto-devel') }}  # [linux]
     - {{ cdt('libx11-devel') }}          # [linux]
     - {{ cdt('libxcb') }}                # [linux]
