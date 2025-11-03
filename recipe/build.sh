@@ -2,11 +2,23 @@
 
 set -ex
 
+# Remove vendored zlib to avoid conflicts with conda-forge zlib-ng
+rm -rf tcl8.6.13/compat/zlib
+
+if [[ ${target_platform} == linux-* ]]; then
+    # Add CDTs to sysroot pkgconfig path
+    # PKG_CONFIG_PATH="${CONDA_BUILD_SYSROOT}/usr/share/pkgconfig:${PKG_CONFIG_PATH}"
+    # export PKG_CONFIG_PATH="${CONDA_BUILD_SYSROOT}/usr/lib64/pkgconfig:${PKG_CONFIG_PATH}"
+
+    # Delete lines that contain Require.private or Libs.private
+    sed -i '/^Requires.private:/d' $(find ${CONDA_BUILD_SYSROOT} -name '*.pc')
+fi
+
 IFS="." read -a VER_ARR <<<"${PKG_VERSION}"
 
 
 pushd tcl${PKG_VERSION}/unix
-  # autoreconf -vfi
+  autoreconf -vfi
   ./configure  --prefix="${PREFIX}"
   make -j${CPU_COUNT} ${VERBOSE_AT}
   make install install-private-headers
@@ -16,9 +28,7 @@ if [[ "$target_platform" == osx-* ]]; then
   CONFIGURE_ARGS="${CONFIGURE_ARGS} --enable-aqua=yes"
 elif [[ "$tk_variant" == xft ]]; then
   CONFIGURE_ARGS="${CONFIGURE_ARGS} --enable-xft"
-  # Remove requires.private for now. Otherwise we need devel packages of
-  # libxrender-devel and the deps in libxrender-devel is broken anyway.
-  sed -i.bak 's/Requires.private: xrender, /Requires.private: /g' $BUILD_PREFIX/$HOST/sysroot/usr/lib/pkgconfig/xft.pc
+  # Sure that we can find xft and fontconfig
   pkg-config --cflags xft fontconfig
 fi
 

@@ -5,7 +5,7 @@ MACOSX_SDK_VERSION:
 c_compiler:
 - clang
 c_compiler_version:
-- '18'
+- '19'
 c_stdlib:
 - macosx_deployment_target
 c_stdlib_version:
@@ -22,5 +22,5 @@ tk:
 - '8.6'
 tk_variant:
 - noxft
-zlib:
-- '1'
+zlib_ng:
+- '2.2'

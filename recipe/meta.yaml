@@ -1,6 +1,6 @@
 {% set version = "8.6.13" %}
 {% set maj_min = ".".join(version.split(".")[:2]) %}
-{% set build = 2 %}
+{% set build = 3 %}
 
 package:
   name: tk
@@ -10,9 +10,16 @@ source:
   - url: https://downloads.sourceforge.net/tcl/tcl{{ version }}-src.tar.gz
     folder: tcl{{ version }}
     sha256: 43a1fae7412f61ff11de2cfd05d28cfc3a73762f354a417c62370a54e2caf066
+    patches:
+      - patches-tcl/0001-Do-not-require-private-libs-zlib-for-compilation.patch
+      - patches-tcl/0002-Use-zlib-ng-instead-of-zlib.patch
+      - patches-tcl/0003-Update-configure.in-for-zlib-ng.patch
+      - patches-tcl/0004-Update-usage-for-zlib-ng.patch
   - url: https://downloads.sourceforge.net/tcl/tk{{ version }}-src.tar.gz
     folder: tk{{ version }}
     sha256: 2e65fa069a23365440a3c56c556b8673b5e32a283800d8d9b257e3f584ce0675
+    patches:
+      - 0001-Do-not-require-private-libs-for-compilation.patch
 
 
 {% if tk_variant == 'noxft' and linux %}
@@ -34,6 +41,9 @@ requirements:
   build:
     - {{ stdlib('c') }}
     - {{ compiler('c') }}
+    - autoconf                           # [unix]
+    - automake                           # [unux]
+    - libtool                            # [unux]
     - {{ cdt('xorg-x11-proto-devel') }}  # [linux]
     - {{ cdt('libx11-devel') }}          # [linux]
     - {{ cdt('libxcb') }}                # [linux]
@@ -48,7 +58,7 @@ requirements:
     - {{ cdt('libXft-devel') }}          # [linux and tk_variant == 'xft']
     - pkg-config                         # [linux and tk_variant == 'xft']
   host:
-    - zlib  # [unix]
+    - zlib-ng  # [unix]
 
 test:
 

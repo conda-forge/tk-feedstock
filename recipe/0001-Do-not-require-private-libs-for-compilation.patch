@@ -1,0 +1,22 @@
+From fa8ccd4085f0b1561f8ff3b1599e4efd0bd644c5 Mon Sep 17 00:00:00 2001
+From: Mark Harfouche <mark.harfouche@gmail.com>
+Date: Sat, 1 Nov 2025 19:43:06 -0400
+Subject: [PATCH] Do not require private libs for compilation
+
+---
+ unix/tk.pc.in | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/unix/tk.pc.in b/unix/tk.pc.in
+index 378b6eb..14ab9e1 100644
+--- a/unix/tk.pc.in
++++ b/unix/tk.pc.in
+@@ -11,5 +11,4 @@ URL: https://www.tcl-lang.org/
+ Version: @TK_VERSION@@TK_PATCH_LEVEL@
+ Requires: tcl >= 8.6
+ Libs: -L${libdir} @TK_LIB_FLAG@ @TK_STUB_LIB_FLAG@
+-Libs.private: @XFT_LIBS@ @XLIBSW@
+ Cflags: -I${includedir}
+-- 
+2.51.0
+

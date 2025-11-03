@@ -1,0 +1,24 @@
+From 075c336189ece821b6a320936c218d939fb90f9c Mon Sep 17 00:00:00 2001
+From: Mark Harfouche <mark.harfouche@gmail.com>
+Date: Sat, 1 Nov 2025 19:39:01 -0400
+Subject: [PATCH] Do not require private libs (zlib) for compilation
+
+---
+ unix/tcl.pc.in | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/unix/tcl.pc.in b/unix/tcl.pc.in
+index 93b5e69..ef91cd0 100644
+--- a/unix/tcl.pc.in
++++ b/unix/tcl.pc.in
+@@ -10,7 +10,5 @@ Name: Tool Command Language
+ Description: Tcl is a powerful, easy-to-learn dynamic programming language, suitable for a wide range of uses.
+ URL: https://www.tcl-lang.org/
+ Version: @TCL_VERSION@@TCL_PATCH_LEVEL@
+-Requires.private: zlib >= 1.2.3
+ Libs: -L${libdir} @TCL_LIB_FLAG@ @TCL_STUB_LIB_FLAG@
+-Libs.private: @TCL_LIBS@
+ Cflags: -I${includedir}
+-- 
+2.51.0
+

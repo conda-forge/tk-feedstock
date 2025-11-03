@@ -1,0 +1,624 @@
+From 6753f1f7ab1e1102c748e9efb41d7733bfcfdd14 Mon Sep 17 00:00:00 2001
+From: Mark Harfouche <mark.harfouche@gmail.com>
+Date: Sun, 2 Nov 2025 21:15:06 -0500
+Subject: [PATCH] Do not use vendored zlib
+
+---
+ generic/tclZlib.c | 130 +++++++++++++++++++++++-----------------------
+ unix/Makefile.in  |  54 ++-----------------
+ 2 files changed, 68 insertions(+), 116 deletions(-)
+
+diff --git a/generic/tclZlib.c b/generic/tclZlib.c
+index 63a25fa..a92eacb 100644
+--- a/generic/tclZlib.c
++++ b/generic/tclZlib.c
+@@ -16,7 +16,7 @@
+ 
+ #include "tclInt.h"
+ #ifdef HAVE_ZLIB
+-#include <zlib.h>
++#include <zlib-ng.h>
+ #include "tclIO.h"
+ 
+ /*
+@@ -48,7 +48,7 @@
+ #define MAX_COMMENT_LEN		256
+ 
+ typedef struct {
+-    gz_header header;
++    zng_gz_header header;
+     char nativeFilenameBuf[MAXPATHLEN];
+     char nativeCommentBuf[MAX_COMMENT_LEN];
+ } GzipHeader;
+@@ -59,7 +59,7 @@ typedef struct {
+ 
+ typedef struct {
+     Tcl_Interp *interp;
+-    z_stream stream;		/* The interface to the zlib library. */
++    zng_stream stream;		/* The interface to the zlib library. */
+     int streamEnd;		/* If we've got to end-of-stream. */
+     Tcl_Obj *inData, *outData;	/* Input / output buffers (lists) */
+     Tcl_Obj *currentInput;	/* Pointer to what is currently being
+@@ -112,9 +112,9 @@ typedef struct {
+ 				 * options can be enabled. */
+     int readAheadLimit;		/* The maximum number of bytes to read from
+ 				 * the underlying stream in one go. */
+-    z_stream inStream;		/* Structure used by zlib for decompression of
++    zng_stream inStream;		/* Structure used by zlib for decompression of
+ 				 * input. */
+-    z_stream outStream;		/* Structure used by zlib for compression of
++    zng_stream outStream;		/* Structure used by zlib for compression of
+ 				 * output. */
+     char *inBuffer, *outBuffer;	/* Working buffers. */
+     int inAllocated, outAllocated;
+@@ -180,9 +180,9 @@ static Tcl_ObjCmdProc		ZlibStreamPutCmd;
+ static void		ConvertError(Tcl_Interp *interp, int code,
+ 			    uLong adler);
+ static Tcl_Obj *	ConvertErrorToList(int code, uLong adler);
+-static inline int	Deflate(z_streamp strm, void *bufferPtr,
++static inline int	Deflate(zng_streamp strm, void *bufferPtr,
+ 			    int bufferSize, int flush, int *writtenPtr);
+-static void		ExtractHeader(gz_header *headerPtr, Tcl_Obj *dictObj);
++static void		ExtractHeader(zng_gz_header *headerPtr, Tcl_Obj *dictObj);
+ static int		GenerateHeader(Tcl_Interp *interp, Tcl_Obj *dictObj,
+ 			    GzipHeader *headerPtr, int *extraSizePtr);
+ static int		ZlibPushSubcmd(Tcl_Interp *interp, int objc,
+@@ -313,7 +313,7 @@ ConvertError(
+ 	sprintf(codeStrBuf, "%d", code);
+ 	break;
+     }
+-    Tcl_SetObjResult(interp, Tcl_NewStringObj(zError(code), -1));
++    Tcl_SetObjResult(interp, Tcl_NewStringObj(zng_zError(code), -1));
+ 
+     /*
+      * Tricky point! We might pass NULL twice here (and will when the error
+@@ -526,7 +526,7 @@ GenerateHeader(
+ 
+ static void
+ ExtractHeader(
+-    gz_header *headerPtr,	/* The gzip header to extract from. */
++    zng_gz_header *headerPtr,	/* The gzip header to extract from. */
+     Tcl_Obj *dictObj)		/* The dictionary to store in. */
+ {
+     Tcl_Encoding latin1enc = NULL;
+@@ -587,35 +587,35 @@ ExtractHeader(
+ 
+ static int
+ SetInflateDictionary(
+-    z_streamp strm,
++    zng_streamp strm,
+     Tcl_Obj *compDictObj)
+ {
+     if (compDictObj != NULL) {
+ 	int length;
+ 	unsigned char *bytes = Tcl_GetByteArrayFromObj(compDictObj, &length);
+ 
+-	return inflateSetDictionary(strm, bytes, length);
++	return zng_inflateSetDictionary(strm, bytes, length);
+     }
+     return Z_OK;
+ }
+ 
+ static int
+ SetDeflateDictionary(
+-    z_streamp strm,
++    zng_streamp strm,
+     Tcl_Obj *compDictObj)
+ {
+     if (compDictObj != NULL) {
+ 	int length;
+ 	unsigned char *bytes = Tcl_GetByteArrayFromObj(compDictObj, &length);
+ 
+-	return deflateSetDictionary(strm, bytes, length);
++	return zng_deflateSetDictionary(strm, bytes, length);
+     }
+     return Z_OK;
+ }
+ 
+ static inline int
+ Deflate(
+-    z_streamp strm,
++    zng_streamp strm,
+     void *bufferPtr,
+     int bufferSize,
+     int flush,
+@@ -625,7 +625,7 @@ Deflate(
+ 
+     strm->next_out = (Bytef *) bufferPtr;
+     strm->avail_out = bufferSize;
+-    e = deflate(strm, flush);
++    e = zng_deflate(strm, flush);
+     if (writtenPtr != NULL) {
+ 	*writtenPtr = bufferSize - strm->avail_out;
+     }
+@@ -769,7 +769,7 @@ Tcl_ZlibStreamInit(
+     zshPtr->compDictObj = NULL;
+     zshPtr->flags = 0;
+     zshPtr->gzHeaderPtr = gzHeaderPtr;
+-    memset(&zshPtr->stream, 0, sizeof(z_stream));
++    memset(&zshPtr->stream, 0, sizeof(zng_stream));
+     zshPtr->stream.adler = 1;
+ 
+     /*
+@@ -777,16 +777,16 @@ Tcl_ZlibStreamInit(
+      */
+ 
+     if (mode == TCL_ZLIB_STREAM_DEFLATE) {
+-	e = deflateInit2(&zshPtr->stream, level, Z_DEFLATED, wbits,
++	e = zng_deflateInit2(&zshPtr->stream, level, Z_DEFLATED, wbits,
+ 		MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
+ 	if (e == Z_OK && zshPtr->gzHeaderPtr) {
+-	    e = deflateSetHeader(&zshPtr->stream,
++	    e = zng_deflateSetHeader(&zshPtr->stream,
+ 		    &zshPtr->gzHeaderPtr->header);
+ 	}
+     } else {
+-	e = inflateInit2(&zshPtr->stream, wbits);
++	e = zng_inflateInit2(&zshPtr->stream, wbits);
+ 	if (e == Z_OK && zshPtr->gzHeaderPtr) {
+-	    e = inflateGetHeader(&zshPtr->stream,
++	    e = zng_inflateGetHeader(&zshPtr->stream,
+ 		    &zshPtr->gzHeaderPtr->header);
+ 	}
+     }
+@@ -952,9 +952,9 @@ ZlibStreamCleanup(
+ {
+     if (!zshPtr->streamEnd) {
+ 	if (zshPtr->mode == TCL_ZLIB_STREAM_DEFLATE) {
+-	    deflateEnd(&zshPtr->stream);
++	    zng_deflateEnd(&zshPtr->stream);
+ 	} else {
+-	    inflateEnd(&zshPtr->stream);
++	    zng_inflateEnd(&zshPtr->stream);
+ 	}
+     }
+ 
+@@ -1002,9 +1002,9 @@ Tcl_ZlibStreamReset(
+ 
+     if (!zshPtr->streamEnd) {
+ 	if (zshPtr->mode == TCL_ZLIB_STREAM_DEFLATE) {
+-	    deflateEnd(&zshPtr->stream);
++	    zng_deflateEnd(&zshPtr->stream);
+ 	} else {
+-	    inflateEnd(&zshPtr->stream);
++	    zng_inflateEnd(&zshPtr->stream);
+ 	}
+     }
+     Tcl_SetByteArrayLength(zshPtr->inData, 0);
+@@ -1016,14 +1016,14 @@ Tcl_ZlibStreamReset(
+ 
+     zshPtr->outPos = 0;
+     zshPtr->streamEnd = 0;
+-    memset(&zshPtr->stream, 0, sizeof(z_stream));
++    memset(&zshPtr->stream, 0, sizeof(zng_stream));
+ 
+     /*
+      * No output buffer available yet.
+      */
+ 
+     if (zshPtr->mode == TCL_ZLIB_STREAM_DEFLATE) {
+-	e = deflateInit2(&zshPtr->stream, zshPtr->level, Z_DEFLATED,
++	e = zng_deflateInit2(&zshPtr->stream, zshPtr->level, Z_DEFLATED,
+ 		zshPtr->wbits, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
+ 	if (e == Z_OK && HaveDictToSet(zshPtr)) {
+ 	    e = SetDeflateDictionary(&zshPtr->stream, zshPtr->compDictObj);
+@@ -1032,7 +1032,7 @@ Tcl_ZlibStreamReset(
+ 	    }
+ 	}
+     } else {
+-	e = inflateInit2(&zshPtr->stream, zshPtr->wbits);
++	e = zng_inflateInit2(&zshPtr->stream, zshPtr->wbits);
+ 	if (IsRawStream(zshPtr) && HaveDictToSet(zshPtr) && e == Z_OK) {
+ 	    e = SetInflateDictionary(&zshPtr->stream, zshPtr->compDictObj);
+ 	    if (e == Z_OK) {
+@@ -1228,7 +1228,7 @@ Tcl_ZlibStreamPut(
+ 	 * size.
+ 	 */
+ 
+-	outSize = deflateBound(&zshPtr->stream, size) + 100;
++	outSize = zng_deflateBound(&zshPtr->stream, size) + 100;
+ 	if (outSize > BUFFER_SIZE_LIMIT) {
+ 	    outSize = BUFFER_SIZE_LIMIT;
+ 	}
+@@ -1396,12 +1396,12 @@ Tcl_ZlibStreamGet(
+ 	    }
+ 	    DictWasSet(zshPtr);
+ 	}
+-	e = inflate(&zshPtr->stream, zshPtr->flush);
++	e = zng_inflate(&zshPtr->stream, zshPtr->flush);
+ 	if (e == Z_NEED_DICT && HaveDictToSet(zshPtr)) {
+ 	    e = SetInflateDictionary(&zshPtr->stream, zshPtr->compDictObj);
+ 	    if (e == Z_OK) {
+ 		DictWasSet(zshPtr);
+-		e = inflate(&zshPtr->stream, zshPtr->flush);
++		e = zng_inflate(&zshPtr->stream, zshPtr->flush);
+ 	    }
+ 	};
+ 	TclListObjLength(NULL, zshPtr->inData, &listLen);
+@@ -1458,7 +1458,7 @@ Tcl_ZlibStreamGet(
+ 	     */
+ 
+ 	    do {
+-		e = inflate(&zshPtr->stream, zshPtr->flush);
++		e = zng_inflate(&zshPtr->stream, zshPtr->flush);
+ 		if (e != Z_NEED_DICT || !HaveDictToSet(zshPtr)) {
+ 		    break;
+ 		}
+@@ -1481,7 +1481,7 @@ Tcl_ZlibStreamGet(
+ 		Tcl_DecrRefCount(zshPtr->currentInput);
+ 		zshPtr->currentInput = 0;
+ 	    }
+-	    inflateEnd(&zshPtr->stream);
++	    zng_inflateEnd(&zshPtr->stream);
+ 	}
+     } else {
+ 	TclListObjLength(NULL, zshPtr->outData, &listLen);
+@@ -1563,9 +1563,9 @@ Tcl_ZlibDeflate(
+ {
+     int wbits = 0, inLen = 0, e = 0, extraSize = 0;
+     Byte *inData = NULL;
+-    z_stream stream;
++    zng_stream stream;
+     GzipHeader header;
+-    gz_header *headerPtr = NULL;
++    zng_gz_header *headerPtr = NULL;
+     Tcl_Obj *obj;
+ 
+     if (!interp) {
+@@ -1592,7 +1592,7 @@ Tcl_ZlibDeflate(
+ 	extraSize = 32;
+ 	if (gzipHeaderDictObj) {
+ 	    headerPtr = &header.header;
+-	    memset(headerPtr, 0, sizeof(gz_header));
++	    memset(headerPtr, 0, sizeof(zng_gz_header));
+ 	    if (GenerateHeader(interp, gzipHeaderDictObj, &header,
+ 		    &extraSize) != TCL_OK) {
+ 		return TCL_ERROR;
+@@ -1622,7 +1622,7 @@ Tcl_ZlibDeflate(
+      */
+ 
+     inData = Tcl_GetByteArrayFromObj(data, &inLen);
+-    memset(&stream, 0, sizeof(z_stream));
++    memset(&stream, 0, sizeof(zng_stream));
+     stream.avail_in = (uInt) inLen;
+     stream.next_in = inData;
+ 
+@@ -1630,14 +1630,14 @@ Tcl_ZlibDeflate(
+      * No output buffer available yet, will alloc after deflateInit2.
+      */
+ 
+-    e = deflateInit2(&stream, level, Z_DEFLATED, wbits, MAX_MEM_LEVEL,
++    e = zng_deflateInit2(&stream, level, Z_DEFLATED, wbits, MAX_MEM_LEVEL,
+ 	    Z_DEFAULT_STRATEGY);
+     if (e != Z_OK) {
+ 	goto error;
+     }
+ 
+     if (headerPtr != NULL) {
+-	e = deflateSetHeader(&stream, headerPtr);
++	e = zng_deflateSetHeader(&stream, headerPtr);
+ 	if (e != Z_OK) {
+ 	    goto error;
+ 	}
+@@ -1649,17 +1649,17 @@ Tcl_ZlibDeflate(
+      * it back to the actual compressed size.
+      */
+ 
+-    stream.avail_out = deflateBound(&stream, inLen) + extraSize;
++    stream.avail_out = zng_deflateBound(&stream, inLen) + extraSize;
+     stream.next_out = Tcl_SetByteArrayLength(obj, stream.avail_out);
+ 
+     /*
+      * Perform the compression, Z_FINISH means do it in one go.
+      */
+ 
+-    e = deflate(&stream, Z_FINISH);
++    e = zng_deflate(&stream, Z_FINISH);
+ 
+     if (e != Z_STREAM_END) {
+-	e = deflateEnd(&stream);
++	e = zng_deflateEnd(&stream);
+ 
+ 	/*
+ 	 * deflateEnd() returns Z_OK when there are bytes left to compress, at
+@@ -1671,7 +1671,7 @@ Tcl_ZlibDeflate(
+ 	    e = Z_BUF_ERROR;
+ 	}
+     } else {
+-	e = deflateEnd(&stream);
++	e = zng_deflateEnd(&stream);
+     }
+ 
+     if (e != Z_OK) {
+@@ -1713,8 +1713,8 @@ Tcl_ZlibInflate(
+ {
+     int wbits = 0, inLen = 0, e = 0, newBufferSize;
+     Byte *inData = NULL, *outData = NULL, *newOutData = NULL;
+-    z_stream stream;
+-    gz_header header, *headerPtr = NULL;
++    zng_stream stream;
++    zng_gz_header header, *headerPtr = NULL;
+     Tcl_Obj *obj;
+     char *nameBuf = NULL, *commentBuf = NULL;
+ 
+@@ -1750,7 +1750,7 @@ Tcl_ZlibInflate(
+ 
+     if (gzipHeaderDictObj) {
+ 	headerPtr = &header;
+-	memset(headerPtr, 0, sizeof(gz_header));
++	memset(headerPtr, 0, sizeof(zng_gz_header));
+ 	nameBuf = (char *)ckalloc(MAXPATHLEN);
+ 	header.name = (Bytef *) nameBuf;
+ 	header.name_max = MAXPATHLEN - 1;
+@@ -1776,7 +1776,7 @@ Tcl_ZlibInflate(
+ 
+     TclNewObj(obj);
+     outData = Tcl_SetByteArrayLength(obj, bufferSize);
+-    memset(&stream, 0, sizeof(z_stream));
++    memset(&stream, 0, sizeof(zng_stream));
+     stream.avail_in = (uInt) inLen+1;	/* +1 because zlib can "over-request"
+ 					 * input (but ignore it!) */
+     stream.next_in = inData;
+@@ -1787,14 +1787,14 @@ Tcl_ZlibInflate(
+      * Initialize zlib for decompression.
+      */
+ 
+-    e = inflateInit2(&stream, wbits);
++    e = zng_inflateInit2(&stream, wbits);
+     if (e != Z_OK) {
+ 	goto error;
+     }
+     if (headerPtr) {
+-	e = inflateGetHeader(&stream, headerPtr);
++	e = zng_inflateGetHeader(&stream, headerPtr);
+ 	if (e != Z_OK) {
+-	    inflateEnd(&stream);
++	    zng_inflateEnd(&stream);
+ 	    goto error;
+ 	}
+     }
+@@ -1804,7 +1804,7 @@ Tcl_ZlibInflate(
+      */
+ 
+     while (1) {
+-	e = inflate(&stream, Z_FINISH);
++	e = zng_inflate(&stream, Z_FINISH);
+ 	if (e != Z_BUF_ERROR) {
+ 	    break;
+ 	}
+@@ -1842,11 +1842,11 @@ Tcl_ZlibInflate(
+     }
+ 
+     if (e != Z_STREAM_END) {
+-	inflateEnd(&stream);
++	zng_inflateEnd(&stream);
+ 	goto error;
+     }
+ 
+-    e = inflateEnd(&stream);
++    e = zng_inflateEnd(&stream);
+     if (e != Z_OK) {
+ 	goto error;
+     }
+@@ -1895,7 +1895,7 @@ Tcl_ZlibCRC32(
+     int len)
+ {
+     /* Nothing much to do, just wrap the crc32(). */
+-    return crc32(crc, (Bytef *) buf, len);
++    return zng_crc32(crc, (Bytef *) buf, len);
+ }
+ 
+ unsigned int
+@@ -1904,7 +1904,7 @@ Tcl_ZlibAdler32(
+     const unsigned char *buf,
+     int len)
+ {
+-    return adler32(adler, (Bytef *) buf, len);
++    return zng_adler32(adler, (Bytef *) buf, len);
+ }
+ 
+ /*
+@@ -2945,7 +2945,7 @@ ZlibTransformClose(
+ 		break;
+ 	    }
+ 	} while (e != Z_STREAM_END);
+-	(void) deflateEnd(&cd->outStream);
++	(void) zng_deflateEnd(&cd->outStream);
+     } else {
+ 	/*
+ 	 * If we have unused bytes from the read input (overshot by
+@@ -2956,7 +2956,7 @@ ZlibTransformClose(
+ 	    Tcl_Ungets (cd->parent, (char *)cd->inStream.next_in, cd->inStream.avail_in, 0);
+ 	}
+ 
+-	(void) inflateEnd(&cd->inStream);
++	(void) zng_inflateEnd(&cd->inStream);
+     }
+ 
+     /*
+@@ -3677,7 +3677,7 @@ ZlibStackChannelTransform(
+      */
+ 
+     if (mode == TCL_ZLIB_STREAM_INFLATE) {
+-	if (inflateInit2(&cd->inStream, wbits) != Z_OK) {
++	if (zng_inflateInit2(&cd->inStream, wbits) != Z_OK) {
+ 	    goto error;
+ 	}
+ 	cd->inAllocated = DEFAULT_BUFFER_SIZE;
+@@ -3686,7 +3686,7 @@ ZlibStackChannelTransform(
+ 	}
+ 	cd->inBuffer = (char *)ckalloc(cd->inAllocated);
+ 	if (cd->flags & IN_HEADER) {
+-	    if (inflateGetHeader(&cd->inStream, &cd->inHeader.header) != Z_OK) {
++	    if (zng_inflateGetHeader(&cd->inStream, &cd->inHeader.header) != Z_OK) {
+ 		goto error;
+ 	    }
+ 	}
+@@ -3696,14 +3696,14 @@ ZlibStackChannelTransform(
+ 	    }
+ 	}
+     } else {
+-	if (deflateInit2(&cd->outStream, level, Z_DEFLATED, wbits,
++	if (zng_deflateInit2(&cd->outStream, level, Z_DEFLATED, wbits,
+ 		MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY) != Z_OK) {
+ 	    goto error;
+ 	}
+ 	cd->outAllocated = DEFAULT_BUFFER_SIZE;
+ 	cd->outBuffer = (char *)ckalloc(cd->outAllocated);
+ 	if (cd->flags & OUT_HEADER) {
+-	    if (deflateSetHeader(&cd->outStream, &cd->outHeader.header) != Z_OK) {
++	    if (zng_deflateSetHeader(&cd->outStream, &cd->outHeader.header) != Z_OK) {
+ 		goto error;
+ 	    }
+ 	}
+@@ -3727,11 +3727,11 @@ ZlibStackChannelTransform(
+   error:
+     if (cd->inBuffer) {
+ 	ckfree(cd->inBuffer);
+-	inflateEnd(&cd->inStream);
++	zng_inflateEnd(&cd->inStream);
+     }
+     if (cd->outBuffer) {
+ 	ckfree(cd->outBuffer);
+-	deflateEnd(&cd->outStream);
++	zng_deflateEnd(&cd->outStream);
+     }
+     if (cd->compDictObj) {
+ 	Tcl_DecrRefCount(cd->compDictObj);
+@@ -3775,14 +3775,14 @@ ResultDecompress(
+     cd->inStream.avail_out = toRead;
+     while (cd->inStream.avail_out > 0) {
+ 
+-	e = inflate(&cd->inStream, flush);
++	e = zng_inflate(&cd->inStream, flush);
+ 	if (e == Z_NEED_DICT && cd->compDictObj) {
+ 	    e = SetInflateDictionary(&cd->inStream, cd->compDictObj);
+ 	    if (e == Z_OK) {
+ 		/*
+ 		 * A repetition of Z_NEED_DICT is just an error.
+ 		 */
+-		e = inflate(&cd->inStream, flush);
++		e = zng_inflate(&cd->inStream, flush);
+ 	    }
+ 	}
+ 
+@@ -3891,7 +3891,7 @@ TclZlibInit(
+      */
+ 
+     cfg[0].key = "zlibVersion";
+-    cfg[0].value = zlibVersion();
++    cfg[0].value = "1.3.1";
+     cfg[1].key = NULL;
+     Tcl_RegisterConfig(interp, "zlib", cfg, "iso8859-1");
+ 
+diff --git a/unix/Makefile.in b/unix/Makefile.in
+index 0a99998..4cba067 100644
+--- a/unix/Makefile.in
++++ b/unix/Makefile.in
+@@ -237,8 +237,6 @@ DLTEST_DIR		= @TCL_SRC_DIR@/unix/dltest
+ # Must be absolute to so the corresponding tcltest's tcl_library is absolute.
+ TCL_BUILDTIME_LIBRARY	= @TCL_SRC_DIR@/library
+ 
+-ZLIB_DIR		= ${COMPAT_DIR}/zlib
+-ZLIB_INCLUDE		= @ZLIB_INCLUDE@
+ TOMMATH_DIR		= $(TOP_DIR)/libtommath
+ 
+ CC			= @CC@
+@@ -361,13 +359,10 @@ CYGWIN_OBJS = tclWinError.o
+ 
+ DTRACE_OBJ = tclDTrace.o
+ 
+-ZLIB_OBJS = Zadler32.o Zcompress.o Zcrc32.o Zdeflate.o Zinfback.o \
+-	Zinffast.o Zinflate.o Zinftrees.o Ztrees.o Zuncompr.o Zzutil.o
+-
+ TCL_OBJS = ${GENERIC_OBJS} ${UNIX_OBJS} ${NOTIFY_OBJS} ${COMPAT_OBJS} \
+ 	${OO_OBJS} @DL_OBJS@ @PLAT_OBJS@
+ 
+-OBJS = ${TCL_OBJS} @DTRACE_OBJ@ @ZLIB_OBJS@ ${TOMMATH_OBJS}
++OBJS = ${TCL_OBJS} @DTRACE_OBJ@ ${TOMMATH_OBJS}
+ 
+ TCL_DECLS = \
+ 	$(GENERIC_DIR)/tcl.decls \
+@@ -689,25 +684,12 @@ DTRACE_HDR = tclDTrace.h
+ 
+ DTRACE_SRC = $(GENERIC_DIR)/tclDTrace.d
+ 
+-ZLIB_SRCS = \
+-	$(ZLIB_DIR)/adler32.c \
+-	$(ZLIB_DIR)/compress.c \
+-	$(ZLIB_DIR)/crc32.c \
+-	$(ZLIB_DIR)/deflate.c \
+-	$(ZLIB_DIR)/infback.c \
+-	$(ZLIB_DIR)/inffast.c \
+-	$(ZLIB_DIR)/inflate.c \
+-	$(ZLIB_DIR)/inftrees.c \
+-	$(ZLIB_DIR)/trees.c \
+-	$(ZLIB_DIR)/uncompr.c \
+-	$(ZLIB_DIR)/zutil.c
+-
+ # Note: don't include DL_SRCS or MAC_OSX_SRCS in SRCS: most of those files
+ # won't compile on the current machine, and they will cause problems for
+ # things like "make depend".
+ 
+ SRCS = $(GENERIC_SRCS) $(UNIX_SRCS) $(NOTIFY_SRCS) \
+-	$(OO_SRCS) $(STUB_SRCS) @PLAT_SRCS@ @ZLIB_SRCS@ $(TOMMATH_SRCS)
++	$(OO_SRCS) $(STUB_SRCS) @PLAT_SRCS@ $(TOMMATH_SRCS)
+ 
+ #--------------------------------------------------------------------------
+ # Start of rules
+@@ -1421,7 +1403,7 @@ tclVar.o: $(GENERIC_DIR)/tclVar.c
+ 	$(CC) -c $(CC_SWITCHES) $(GENERIC_DIR)/tclVar.c
+ 
+ tclZlib.o: $(GENERIC_DIR)/tclZlib.c
+-	$(CC) -c $(CC_SWITCHES) $(ZLIB_INCLUDE) $(GENERIC_DIR)/tclZlib.c
++	$(CC) -c $(CC_SWITCHES) $(GENERIC_DIR)/tclZlib.c
+ 
+ tclTest.o: $(GENERIC_DIR)/tclTest.c $(IOHDR) $(TCLREHDRS)
+ 	$(CC) -c $(APP_CC_SWITCHES) $(GENERIC_DIR)/tclTest.c
+@@ -1752,30 +1734,6 @@ waitpid.o: $(COMPAT_DIR)/waitpid.c
+ fake-rfc2553.o: $(COMPAT_DIR)/fake-rfc2553.c
+ 	$(CC) -c $(STUB_CC_SWITCHES) $(COMPAT_DIR)/fake-rfc2553.c
+ 
+-# For building zlib, only used in some build configurations
+-Zadler32.o: $(ZLIB_DIR)/adler32.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/adler32.c
+-Zcompress.o: $(ZLIB_DIR)/compress.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/compress.c
+-Zcrc32.o:    $(ZLIB_DIR)/crc32.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/crc32.c
+-Zdeflate.o:  $(ZLIB_DIR)/deflate.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/deflate.c
+-Zinfback.o:  $(ZLIB_DIR)/infback.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/infback.c
+-Zinffast.o:  $(ZLIB_DIR)/inffast.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/inffast.c
+-Zinflate.o:  $(ZLIB_DIR)/inflate.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/inflate.c
+-Zinftrees.o: $(ZLIB_DIR)/inftrees.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/inftrees.c
+-Ztrees.o:    $(ZLIB_DIR)/trees.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/trees.c
+-Zuncompr.o:  $(ZLIB_DIR)/uncompr.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/uncompr.c
+-Zzutil.o:    $(ZLIB_DIR)/zutil.c
+-	$(CC) -c -o $@ $(CC_SWITCHES) -I$(ZLIB_DIR) $(ZLIB_DIR)/zutil.c
+-
+ #--------------------------------------------------------------------------
+ # Stub library binaries, these must be compiled for use in a shared library
+ # even though they will be placed in a static archive
+@@ -2110,12 +2068,6 @@ dist: $(UNIX_DIR)/configure $(UNIX_DIR)/tclConfig.h.in $(UNIX_DIR)/tcl.pc.in gen
+ 	@mkdir $(DISTDIR)/compat
+ 	cp -p $(TOP_DIR)/license.terms $(COMPAT_DIR)/*.[ch] \
+ 		$(COMPAT_DIR)/README $(DISTDIR)/compat
+-	@mkdir $(DISTDIR)/compat/zlib
+-	@echo cp -r $(COMPAT_DIR)/zlib $(DISTDIR)/compat/zlib
+-	@( cd $(COMPAT_DIR)/zlib; \
+-	  find . -name CVS -prune -o -type f -print ) \
+-	    | ( cd $(COMPAT_DIR)/zlib ; xargs tar cf - ) \
+-	    | ( cd $(DISTDIR)/compat/zlib ; tar xfp - )
+ 	@mkdir $(DISTDIR)/tests
+ 	cp -p $(TOP_DIR)/license.terms $(DISTDIR)/tests
+ 	cp -p $(TOP_DIR)/tests/*.test $(TOP_DIR)/tests/README \
+-- 
+2.51.0
+
