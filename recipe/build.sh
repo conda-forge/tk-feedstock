@@ -26,7 +26,7 @@ if [[ "$target_platform" == osx-* ]]; then
 elif [[ "$tk_variant" == xft ]]; then
   CONFIGURE_ARGS="${CONFIGURE_ARGS} --enable-xft"
   # Sure that we can find xft and fontconfig
-  ${PKG_CONFIG} --cflags xft fontconfig
+  pkg-config --cflags xft fontconfig
 fi
 
 pushd tk${PKG_VERSION}/unix
