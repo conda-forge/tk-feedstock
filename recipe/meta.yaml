@@ -1,6 +1,7 @@
-{% set version = "8.6.13" %}
+{% set version = "9.0.3" %}
+{% set maj = version.split(".")[0] %}
 {% set maj_min = ".".join(version.split(".")[:2]) %}
-{% set build = 3 %}
+{% set build = 0 %}
 
 package:
   name: tk
@@ -9,10 +10,10 @@ package:
 source:
   - url: https://downloads.sourceforge.net/tcl/tcl{{ version }}-src.tar.gz
     folder: tcl{{ version }}
-    sha256: 43a1fae7412f61ff11de2cfd05d28cfc3a73762f354a417c62370a54e2caf066
+    sha256: 2537ba0c86112c8c953f7c09d33f134dd45c0fb3a71f2d7f7691fd301d2c33a6
   - url: https://downloads.sourceforge.net/tcl/tk{{ version }}-src.tar.gz
     folder: tk{{ version }}
-    sha256: 2e65fa069a23365440a3c56c556b8673b5e32a283800d8d9b257e3f584ce0675
+    sha256: bf344efadb618babb7933f69275620f72454d1c8220130da93e3f7feb0efbf9b
 
 
 {% if tk_variant == 'noxft' and linux %}
