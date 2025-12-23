@@ -41,9 +41,10 @@ requirements:
     - {{ stdlib('c') }}
     - {{ compiler('c') }}
     - make                               # [unix]
+    - zip                                # [unix]
     - pkg-config                         # [linux and tk_variant == 'xft']
   host:
-    - zlib  # [unix]
+    - zlib                               # [unix]
     - xorg-xorgproto                     # [linux]
     - xorg-libx11                        # [linux]
     - xorg-libxft                        # [linux and tk_variant == 'xft']
