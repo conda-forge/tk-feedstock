@@ -102,7 +102,7 @@ test:
     - tclsh{{ maj_min.replace(".", "") }} hello.tcl      # [win]
     - wish hello.tcl
     - wish{{ maj_min }} hello.tcl                        # [unix]
-    - wish{{ maj_min.replace(".", "") }}t hello.tcl      # [win]
+    - wish{{ maj_min.replace(".", "") }} hello.tcl      # [win]
 
 about:
   home: http://www.tcl.tk/
