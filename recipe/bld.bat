@@ -27,12 +27,14 @@ setlocal EnableDelayedExpansion
     set "LIB=%LIB_FOR_BUILD%"
     set "INCLUDE=%INCLUDE_FOR_BUILD%"
   )
-  %CC% nmakehlp.c
+  nmake nmakehlp.exe MACHINE=%BUILD_MACHINE%
+  dir
   nmakehlp.exe --help
   for /r "%SRC_DIR%\tcl%PKG_VERSION%\pkgs" %%d in (.) do (
     if exist "%%d\nmakehlp.c" (
       pushd "%%d"
-        %CC% nmakehlp.c
+        nmake nmakehlp.exe MACHINE=%BUILD_MACHINE%
+        dir
         nmakehlp.exe --help
       popd
     )
@@ -53,7 +55,8 @@ setlocal EnableDelayedExpansion
     set "LIB=%LIB_FOR_BUILD%"
     set "INCLUDE=%INCLUDE_FOR_BUILD%"
   )
-  %CC% nmakehlp.c
+  nmake nmakehlp.exe MACHINE=%BUILD_MACHINE%
+  dir
   nmakehlp.exe --help
 endlocal
 nmake -f makefile.vc INSTALLDIR=%LIBRARY_PREFIX% %TCLSH_NATIVE% MACHINE=%MACHINE% TCLDIR=..\..\tcl%PKG_VERSION% release
