@@ -31,6 +31,7 @@ setlocal
     if exist "%%d\nmakehlp.c" (
       pushd "%%d"
         nmake nmakehlp.exe MACHINE=%BUILD_MACHINE%
+        nmakehlp.exe --help
       popd
     )
   )
