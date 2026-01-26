@@ -1,4 +1,5 @@
 @echo ON
+setlocal EnableDelayedExpansion
 
 if "%target_platform%"=="win-64" (
   set MACHINE="AMD64"
@@ -19,7 +20,7 @@ if NOT "%target_platform%"=="%build_platform%" (
 )
 
 pushd tcl%PKG_VERSION%\win
-setlocal
+setlocal EnableDelayedExpansion
   if NOT "%target_platform%"=="%build_platform%" (
     set "CC=%CC_FOR_BUILD%"
     set "CXX=%CXX_FOR_BUILD%"
@@ -45,7 +46,7 @@ popd
 :: Tk build
 
 pushd tk%PKG_VERSION%\win
-setlocal
+setlocal EnableDelayedExpansion
   if NOT "%target_platform%"=="%build_platform%" (
     set "CC=%CC_FOR_BUILD%"
     set "CXX=%CXX_FOR_BUILD%"
