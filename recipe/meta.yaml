@@ -41,6 +41,7 @@ requirements:
     - {{ compiler('c') }}
     - make                               # [unix]
     - pkg-config                         # [linux and tk_variant == 'xft']
+    - tk                                 # [build_platform != target_platform]
   host:
     - zlib  # [unix]
     - xorg-xorgproto                     # [linux]
