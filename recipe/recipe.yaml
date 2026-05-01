@@ -5,10 +5,10 @@ context:
   maj_min: ${{ major }}.${{ minor }}
   maj_min_nodot: ${{ major }}${{ minor }}
   build_base: 3
-  # prioritize noxft variant via build number
-  build_number: ${{ build_base + 100 if (tk_variant == "noxft" and linux) else build_base }}
+  # prioritize noxft variant via build number (only on linux)
+  build_number: ${{ build_base + 100 if ((tk_variant | default("")) == "noxft" and (linux | default(false))) else build_base }}
   # the variant prefix is only used in the build string on linux
-  string_prefix: ${{ tk_variant + "_" if linux else "" }}
+  string_prefix: ${{ (tk_variant | default("")) + "_" if (linux | default(false)) else "" }}
 
 package:
   name: tk
