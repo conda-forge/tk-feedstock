@@ -1,12 +1,10 @@
 context:
   version: "8.6.13"
-  major: ${{ version.split(".")[0] }}
-  minor: ${{ version.split(".")[1] }}
+  major: ${{ version | split(".") | first }}
+  minor: ${{ (version | split("."))[1] }}
   maj_min: ${{ major }}.${{ minor }}
   maj_min_nodot: ${{ major }}${{ minor }}
-  build_base: 3
-  # prioritize noxft variant via build number (only on linux)
-  build_number: ${{ build_base + 100 if ((tk_variant | default("")) == "noxft" and (linux | default(false))) else build_base }}
+  build: 3
   # the variant prefix is only used in the build string on linux
   string_prefix: ${{ (tk_variant | default("")) + "_" if (linux | default(false)) else "" }}
 
@@ -23,14 +21,13 @@ source:
     sha256: 2e65fa069a23365440a3c56c556b8673b5e32a283800d8d9b257e3f584ce0675
 
 build:
-  number: ${{ build_number }}
-  string: ${{ string_prefix }}h${{ hash }}_${{ build_number }}
+  number: ${{ build }}
+  string: ${{ string_prefix }}h${{ hash }}_${{ build }}
   variant:
     use_keys:
       - tk_variant
-    track_features:
-      - if: tk_variant == "xft"
-        then: tk_xft
+    # deprioritize the xft variant (preserves preference for noxft, replaces v0 track_features)
+    down_prioritize_variant: ${{ 1 if (tk_variant | default("")) == "xft" else 0 }}
 
 requirements:
   build:
