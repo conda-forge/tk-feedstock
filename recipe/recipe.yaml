@@ -1,0 +1,166 @@
+context:
+  version: "8.6.13"
+  major: ${{ version.split(".")[0] }}
+  minor: ${{ version.split(".")[1] }}
+  maj_min: ${{ major }}.${{ minor }}
+  maj_min_nodot: ${{ major }}${{ minor }}
+  build_base: 3
+  # prioritize noxft variant via build number
+  build_number: ${{ build_base + 100 if (tk_variant == "noxft" and linux) else build_base }}
+  # the variant prefix is only used in the build string on linux
+  string_prefix: ${{ tk_variant + "_" if linux else "" }}
+
+package:
+  name: tk
+  version: ${{ version }}
+
+source:
+  - url: https://downloads.sourceforge.net/tcl/tcl${{ version }}-src.tar.gz
+    target_directory: tcl${{ version }}
+    sha256: 43a1fae7412f61ff11de2cfd05d28cfc3a73762f354a417c62370a54e2caf066
+  - url: https://downloads.sourceforge.net/tcl/tk${{ version }}-src.tar.gz
+    target_directory: tk${{ version }}
+    sha256: 2e65fa069a23365440a3c56c556b8673b5e32a283800d8d9b257e3f584ce0675
+
+build:
+  number: ${{ build_number }}
+  string: ${{ string_prefix }}h${{ hash }}_${{ build_number }}
+  variant:
+    use_keys:
+      - tk_variant
+    track_features:
+      - if: tk_variant == "xft"
+        then: tk_xft
+
+requirements:
+  build:
+    - ${{ stdlib('c') }}
+    - ${{ compiler('c') }}
+    - if: unix
+      then: make
+    - if: linux and tk_variant == "xft"
+      then: pkg-config
+    - if: build_platform != target_platform
+      then: tk
+  host:
+    - if: unix
+      then: zlib
+    - if: linux
+      then:
+        - xorg-xorgproto
+        - xorg-libx11
+    - if: linux and tk_variant == "xft"
+      then:
+        - xorg-libxft
+        - fontconfig
+        - expat
+  run_constraints:
+    - if: linux
+      then: ${{ pin_compatible("xorg-libx11") }}
+    - if: linux and tk_variant == "xft"
+      then:
+        - ${{ pin_compatible("xorg-libxft") }}
+        - ${{ pin_compatible("fontconfig") }}
+  run_exports:
+    # pin to major.minor because library names have that info in them
+    - ${{ pin_subpackage('tk', upper_bound='x.x') }}
+  ignore_run_exports:
+    from_package:
+      - if: linux
+        then: xorg-libx11
+      - if: linux and tk_variant == "xft"
+        then:
+          - xorg-libxft
+          - expat
+          - fontconfig
+
+tests:
+  - script:
+      # Check for binaries.
+      - if: unix
+        then:
+          - test -f "${PREFIX}/bin/tclsh"
+          - test -f "${PREFIX}/bin/wish"
+          - test -f "${PREFIX}/bin/tclsh${{ maj_min }}"
+          - test -f "${PREFIX}/bin/wish${{ maj_min }}"
+      - if: win
+        then:
+          - if not exist %LIBRARY_PREFIX%\bin\tclsh.exe exit 1
+          - if not exist %LIBRARY_PREFIX%\bin\wish.exe exit 1
+          - if not exist %LIBRARY_PREFIX%\bin\tclsh${{ maj_min_nodot }}.exe exit 1
+          - if not exist %LIBRARY_PREFIX%\bin\wish${{ maj_min_nodot }}.exe exit 1
+      # Check for includes.
+      - if: unix
+        then:
+          - test -f "${PREFIX}/include/tcl.h"
+          - test -f "${PREFIX}/include/tclDecls.h"
+          - test -f "${PREFIX}/include/tclPlatDecls.h"
+          - test -f "${PREFIX}/include/tclTomMathDecls.h"
+          - test -f "${PREFIX}/include/tclTomMath.h"
+          - test -f "${PREFIX}/include/tk.h"
+          - test -f "${PREFIX}/include/tkDecls.h"
+          - test -f "${PREFIX}/include/tkPlatDecls.h"
+      - if: win
+        then:
+          - if not exist %LIBRARY_PREFIX%\include\tcl.h exit 1
+          - if not exist %LIBRARY_PREFIX%\include\tclDecls.h exit 1
+          - if not exist %LIBRARY_PREFIX%\include\tclPlatDecls.h exit 1
+          - if not exist %LIBRARY_PREFIX%\include\tclTomMathDecls.h exit 1
+          - if not exist %LIBRARY_PREFIX%\include\tclTomMath.h exit 1
+          - if not exist %LIBRARY_PREFIX%\include\tk.h exit 1
+          - if not exist %LIBRARY_PREFIX%\include\tkDecls.h exit 1
+          - if not exist %LIBRARY_PREFIX%\include\tkPlatDecls.h exit 1
+      # Check for libraries.
+      # Library naming note: t means "full thread support" in Windows
+      #    https://sourceforge.net/p/tcl/mailman/tcl-bugs/thread/From_noreply@sourceforge.net_Mon_Jul_23_11:46:16_2012/
+      - if: osx
+        then:
+          - test -f "${PREFIX}/lib/libtcl${{ maj_min }}.dylib"
+          - test -f "${PREFIX}/lib/libtk${{ maj_min }}.dylib"
+      - if: linux
+        then:
+          - test -f "${PREFIX}/lib/libtcl${{ maj_min }}.so"
+          - test -f "${PREFIX}/lib/libtk${{ maj_min }}.so"
+      - if: unix
+        then:
+          - test -f "${PREFIX}/lib/libtclstub${{ maj_min }}.a"
+          - test -f "${PREFIX}/lib/libtkstub${{ maj_min }}.a"
+      - if: win
+        then:
+          - if not exist %LIBRARY_PREFIX%\lib\tcl${{ maj_min_nodot }}t.lib exit 1
+          - if not exist %LIBRARY_PREFIX%\lib\tk${{ maj_min_nodot }}t.lib exit 1
+          - if not exist %LIBRARY_PREFIX%\bin\tcl${{ maj_min_nodot }}t.dll exit 1
+          - if not exist %LIBRARY_PREFIX%\bin\tk${{ maj_min_nodot }}t.dll exit 1
+          - if not exist %LIBRARY_PREFIX%\lib\tclstub${{ maj_min_nodot }}.lib exit 1
+          - if not exist %LIBRARY_PREFIX%\lib\tkstub${{ maj_min_nodot }}.lib exit 1
+      # Check commands work and run a simple program.
+      - tclsh hello.tcl
+      - wish hello.tcl
+      - if: unix
+        then:
+          - tclsh${{ maj_min }} hello.tcl
+          - wish${{ maj_min }} hello.tcl
+      - if: win
+        then:
+          - tclsh${{ maj_min_nodot }} hello.tcl
+          - wish${{ maj_min_nodot }}t hello.tcl
+    files:
+      recipe:
+        - hello.tcl
+
+about:
+  homepage: http://www.tcl.tk/
+  license: TCL
+  license_file: tcl${{ version }}/license.terms
+  summary: A dynamic programming language with GUI support.  Bundles Tcl and Tk.
+  repository: https://github.com/tcltk/tk
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - msarahan
+    - pelson
+    - ocefpaf
+    - isuruf
+    - matthiasdiener
+    - xhochy
