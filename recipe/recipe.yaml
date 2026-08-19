@@ -61,6 +61,8 @@ outputs:
             - xorg-libxft
             - fontconfig
             - expat
+            # necessary for pkg-config metadata
+            - freetype
       ignore_run_exports:
         from_package:
           - xorg-libx11
