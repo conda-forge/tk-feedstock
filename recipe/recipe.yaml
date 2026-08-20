@@ -120,7 +120,17 @@ tests:
             - Library/lib/tclstub${{ maj_min_nodot }}.lib
             - Library/lib/tkstub${{ maj_min_nodot }}.lib
 
-  - script:
+  - requirements:
+      run:
+        # in cross-compilation, some system libraries are not available natively
+        - if: build_platform != target_platform
+          then:
+            - xorg-libx11
+            - xorg-libxft
+    files:
+      recipe:
+        - hello.tcl
+    script:
       # Check commands work and run a simple program.
       - tclsh hello.tcl
       - wish hello.tcl
@@ -132,9 +142,6 @@ tests:
         then:
           - tclsh${{ maj_min_nodot }} hello.tcl
           - wish${{ maj_min_nodot }}t hello.tcl
-    files:
-      recipe:
-        - hello.tcl
 
 about:
   homepage: http://www.tcl.tk/
