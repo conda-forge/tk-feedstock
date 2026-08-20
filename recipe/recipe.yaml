@@ -4,7 +4,7 @@ context:
   minor: ${{ (version | split("."))[1] }}
   maj_min: ${{ major }}.${{ minor }}
   maj_min_nodot: ${{ major }}${{ minor }}
-  build: 3
+  build: 4
   # the variant prefix is only used in the build string on linux
   string_prefix: ${{ (tk_variant | default("")) + "_" if (linux | default(false)) else "" }}
 
