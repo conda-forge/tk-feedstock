@@ -3,7 +3,7 @@ context:
   major: ${{ version | split(".") | first }}
   minor: ${{ (version | split("."))[1] }}
   maj_min: ${{ major }}${{ '.' if unix }}${{ minor }}
-  build: 0
+  build: 1
   tk_build: ${{ build + 100 if tk_variant == 'noxft' and linux else build }}
   # the variant prefix is only used in the build string on linux
   string_prefix: ${{ (tk_variant | default("")) + "_" if (linux | default(false)) else "" }}
@@ -61,6 +61,8 @@ outputs:
             - xorg-libxft
             - fontconfig
             - expat
+            # necessary for pkg-config metadata
+            - freetype
       ignore_run_exports:
         from_package:
           - xorg-libx11
