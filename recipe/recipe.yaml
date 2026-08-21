@@ -38,7 +38,7 @@ requirements:
     - if: linux and tk_variant == "xft"
       then: pkg-config
     - if: build_platform != target_platform
-      then: tk
+      then: tk ${{ maj_min }}.*
   host:
     - if: unix
       then: zlib
