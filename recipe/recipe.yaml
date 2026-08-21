@@ -4,7 +4,7 @@ context:
   minor: ${{ (version | split("."))[1] }}
   maj_min: ${{ major }}.${{ minor }}
   maj_min_nodot: ${{ major }}${{ minor }}
-  build: 3
+  build: 4
   # the variant prefix is only used in the build string on linux
   string_prefix: ${{ (tk_variant | default("")) + "_" if (linux | default(false)) else "" }}
 
@@ -38,7 +38,7 @@ requirements:
     - if: linux and tk_variant == "xft"
       then: pkg-config
     - if: build_platform != target_platform
-      then: tk
+      then: tk ${{ maj_min }}.*
   host:
     - if: unix
       then: zlib
@@ -51,6 +51,8 @@ requirements:
         - xorg-libxft
         - fontconfig
         - expat
+        # necessary for pkg-config metadata
+        - freetype
   run_constraints:
     - if: linux
       then: ${{ pin_compatible("xorg-libx11") }}
@@ -70,6 +72,7 @@ requirements:
           - xorg-libxft
           - expat
           - fontconfig
+          - freetype
 
 tests:
   # Library naming note: "t" suffix means "full thread support" in Windows
@@ -117,7 +120,17 @@ tests:
             - Library/lib/tclstub${{ maj_min_nodot }}.lib
             - Library/lib/tkstub${{ maj_min_nodot }}.lib
 
-  - script:
+  - requirements:
+      run:
+        # in cross-compilation, some system libraries are not available natively
+        - if: build_platform != target_platform
+          then:
+            - xorg-libx11
+            - xorg-libxft
+    files:
+      recipe:
+        - hello.tcl
+    script:
       # Check commands work and run a simple program.
       - tclsh hello.tcl
       - wish hello.tcl
@@ -129,9 +142,6 @@ tests:
         then:
           - tclsh${{ maj_min_nodot }} hello.tcl
           - wish${{ maj_min_nodot }}t hello.tcl
-    files:
-      recipe:
-        - hello.tcl
 
 about:
   homepage: http://www.tcl.tk/
