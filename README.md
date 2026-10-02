@@ -1,5 +1,5 @@
-About tk-split-feedstock
-========================
+About libtcl-feedstock
+======================
 
 Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/tk-feedstock/blob/main/LICENSE.txt)
 
@@ -15,7 +15,46 @@ Current build status
 ====================
 
 
-<table>
+<table><tr>
+    <td>GitHub Actions</td>
+    <td>
+      <a href="https://github.com/conda-forge/tk-feedstock/actions/workflows/conda-build.yml">
+        <img src="https://github.com/conda-forge/tk-feedstock/actions/workflows/conda-build.yml/badge.svg?event=push&branch=main">
+      </a>
+    </td>
+  </tr>
+    
+  <tr>
+    <td>Azure</td>
+    <td>
+      <details>
+        <summary>
+          <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
+            <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main">
+          </a>
+        </summary>
+        <table>
+          <thead><tr><th>Variant</th><th>Status</th></tr></thead>
+          <tbody><tr>
+              <td>osx_64</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_64_" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>osx_arm64</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=2081&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/tk-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_arm64_" alt="variant">
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </details>
+    </td>
+  </tr>
 </table>
 
 Current release info
@@ -23,11 +62,17 @@ Current release info
 
 | Name | Downloads | Version | Platforms |
 | --- | --- | --- | --- |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-libtcl-green.svg)](https://anaconda.org/conda-forge/libtcl) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/libtcl.svg)](https://anaconda.org/conda-forge/libtcl) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/libtcl.svg)](https://anaconda.org/conda-forge/libtcl) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/libtcl.svg)](https://anaconda.org/conda-forge/libtcl) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-libtcl--devel-green.svg)](https://anaconda.org/conda-forge/libtcl-devel) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/libtcl-devel.svg)](https://anaconda.org/conda-forge/libtcl-devel) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/libtcl-devel.svg)](https://anaconda.org/conda-forge/libtcl-devel) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/libtcl-devel.svg)](https://anaconda.org/conda-forge/libtcl-devel) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-libtk-green.svg)](https://anaconda.org/conda-forge/libtk) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/libtk.svg)](https://anaconda.org/conda-forge/libtk) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/libtk.svg)](https://anaconda.org/conda-forge/libtk) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/libtk.svg)](https://anaconda.org/conda-forge/libtk) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-libtk--devel-green.svg)](https://anaconda.org/conda-forge/libtk-devel) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/libtk-devel.svg)](https://anaconda.org/conda-forge/libtk-devel) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/libtk-devel.svg)](https://anaconda.org/conda-forge/libtk-devel) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/libtk-devel.svg)](https://anaconda.org/conda-forge/libtk-devel) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-tcl-green.svg)](https://anaconda.org/conda-forge/tcl) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/tcl.svg)](https://anaconda.org/conda-forge/tcl) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/tcl.svg)](https://anaconda.org/conda-forge/tcl) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/tcl.svg)](https://anaconda.org/conda-forge/tcl) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-tk-green.svg)](https://anaconda.org/conda-forge/tk) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/tk.svg)](https://anaconda.org/conda-forge/tk) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/tk.svg)](https://anaconda.org/conda-forge/tk) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/tk.svg)](https://anaconda.org/conda-forge/tk) |
 
-Installing tk-split
-===================
+Installing libtcl
+=================
 
-Installing `tk-split` from the `conda-forge` channel can be achieved by adding `conda-forge` to your channels with:
+Installing `libtcl` from the `conda-forge` channel can be achieved by adding `conda-forge` to your channels with:
 
 ```
 conda config --add channels conda-forge
@@ -41,7 +86,7 @@ How to use
 <summary>With conda</summary>
 
 ```
-conda install 
+conda install libtcl libtcl-devel libtk libtk-devel tcl tk
 ```
 
 </details>
@@ -50,7 +95,7 @@ conda install
 <summary>With mamba</summary>
 
 ```
-mamba install 
+mamba install libtcl libtcl-devel libtk libtk-devel tcl tk
 ```
 
 </details>
@@ -60,9 +105,9 @@ mamba install
 
 ```
 # for adding to your local project
-pixi add 
+pixi add libtcl libtcl-devel libtk libtk-devel tcl tk
 # for installing globally
-pixi global install 
+pixi global install libtcl libtcl-devel libtk libtk-devel tcl tk
 ```
 
 </details>
@@ -70,13 +115,13 @@ pixi global install
 Search package versions
 -----------------------
 
-It is possible to list all of the versions of `` available on your platform:
+It is possible to list all of the versions of `libtcl` available on your platform:
 
 <details>
 <summary>With conda</summary>
 
 ```
-conda search  --channel conda-forge
+conda search libtcl --channel conda-forge
 ```
 
 </details>
@@ -85,7 +130,7 @@ conda search  --channel conda-forge
 <summary>With mamba</summary>
 
 ```
-mamba search  --channel conda-forge
+mamba search libtcl --channel conda-forge
 ```
 
 </details>
@@ -94,7 +139,7 @@ mamba search  --channel conda-forge
 <summary>With pixi</summary>
 
 ```
-pixi search  --channel conda-forge
+pixi search libtcl --channel conda-forge
 ```
 
 </details>
@@ -104,13 +149,13 @@ pixi search  --channel conda-forge
 
 ```
 # Search all versions available on your platform:
-mamba repoquery search  --channel conda-forge
+mamba repoquery search libtcl --channel conda-forge
 
-# List packages depending on ``:
-mamba repoquery whoneeds  --channel conda-forge
+# List packages depending on `libtcl`:
+mamba repoquery whoneeds libtcl --channel conda-forge
 
-# List dependencies of ``:
-mamba repoquery depends  --channel conda-forge
+# List dependencies of `libtcl`:
+mamba repoquery depends libtcl --channel conda-forge
 ```
 
 </details>
@@ -157,17 +202,17 @@ Terminology
                   produce the finished article (built conda distributions)
 
 
-Updating tk-split-feedstock
-===========================
+Updating libtcl-feedstock
+=========================
 
-If you would like to improve the tk-split recipe or build a new
+If you would like to improve the libtcl recipe or build a new
 package version, please fork this repository and submit a PR. Upon submission,
 your changes will be run on the appropriate platforms to give the reviewer an
 opportunity to confirm that the changes result in a successful build. Once
 merged, the recipe will be re-built and uploaded automatically to the
 `conda-forge` channel, whereupon the built conda packages will be available for
 everybody to install and use from the `conda-forge` channel.
-Note that all branches in the conda-forge/tk-split-feedstock are
+Note that all branches in the conda-forge/libtcl-feedstock are
 immediately built and any created packages are uploaded, so PRs should be based
 on branches in forks, and branches in the main repository should only be used to
 build distinct package versions.
