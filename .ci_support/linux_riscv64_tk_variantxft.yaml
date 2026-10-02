@@ -16,6 +16,8 @@ expat:
 - '2'
 fontconfig:
 - '2'
+freetype:
+- '2'
 target_platform:
 - linux-riscv64
 tk_variant:

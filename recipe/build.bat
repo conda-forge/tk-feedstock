@@ -16,7 +16,8 @@ if "%build_platform%"=="win-arm64" (
 )
 
 if NOT "%target_platform%"=="%build_platform%" (
-  set "TCLSH_NATIVE=TCLSH_NATIVE=%BUILD_PREFIX%\Library\bin\tclsh86.exe"
+  set "TCLSH_NATIVE=TCLSH_NATIVE=%BUILD_PREFIX%\Library\bin\tclsh90.exe"
+  sed -i.bak "s/(TCLSH)/(TCLSH_NATIVE)/g" win/makefile.vc
 )
 
 rmdir /s /q "tcl%PKG_VERSION%\pkgs"
